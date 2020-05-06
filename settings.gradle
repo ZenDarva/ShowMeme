@@ -1,0 +1,6 @@
+rootProject.name = 'ShowMeme'
+include 'Account'
+include 'Storage'
+include 'Post'
+include 'Common'
+
