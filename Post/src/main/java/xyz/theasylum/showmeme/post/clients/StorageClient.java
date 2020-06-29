@@ -27,11 +27,6 @@ public class StorageClient {
         template = new RestTemplate();
     }
 
-    public void test() {
-
-        System.out.println("Test!");
-    }
-
     public String uploadImage(String filename, byte[] file) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);

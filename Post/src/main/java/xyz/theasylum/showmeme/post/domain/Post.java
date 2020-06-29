@@ -3,6 +3,7 @@ package xyz.theasylum.showmeme.post.domain;
 import lombok.Data;
 import org.joda.time.Instant;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.ArrayList;
@@ -23,7 +24,10 @@ public class Post {
     private boolean publicPost = true;
     private boolean visiblePost = true;
     private Long posted;
+    private long views;
 
+    @Transient
+    private List<Comment> comments;
 
     public Post(int size) {
         altTexts= new ArrayList<>(size);

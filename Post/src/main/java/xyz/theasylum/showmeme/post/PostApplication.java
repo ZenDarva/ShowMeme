@@ -9,9 +9,12 @@ import org.springframework.web.multipart.MultipartResolver;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 
+import java.util.UUID;
+
 @SpringBootApplication
 @EnableDiscoveryClient()
 public class PostApplication {
+
     public static void main(String[] args) throws Throwable {
         SpringApplication.run(PostApplication.class, args);
     }
