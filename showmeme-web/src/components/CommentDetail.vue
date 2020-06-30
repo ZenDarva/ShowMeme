@@ -2,21 +2,21 @@
   <v-card shaped :color="this.getColor()">
     <v-card-subtitle class="pb-0 mb-0 pa-2 pl-3">{{myComment.postedBy}}</v-card-subtitle>
     <v-card-text class="pb-0 mb-0" align="right"><span v-html="myComment.body"/></v-card-text>
-    <v-card-actions class="my-0 py-0" v-if="this.authService.hasUser()">
+    <v-card-actions class="my-0 py-0">
       <v-row class="pt-0 ma-0">
         <v-col cols="3" class="py-0 my-0">
-          <v-btn icon small class="py-0 my-0 px-1" @click="voteUp">
+          <v-btn icon small class="py-0 my-0 px-1" @click="voteUp" :disabled="!authService.hasUser()">
             <v-icon small :color="upvoteColor()">fas fa-thumbs-up</v-icon>
           </v-btn>
           <span>{{myComment.votes}}</span>
-          <v-btn icon small class="py-0 my-0 px-1" @click="voteDown">
+          <v-btn icon small class="py-0 my-0 px-1" @click="voteDown" :disabled="!authService.hasUser()">
             <v-icon small :color="downvoteColor()">fas fa-thumbs-down</v-icon>
           </v-btn>
         </v-col>
         <v-col cols="1" offset="8" class="pt-0 my-0">
           <v-tooltip left class="py-0 my-0">
             <template v-slot:activator="{ on,attrs }">
-              <v-btn icon v-bind="attrs" v-on="on" class="pt-0 my-0" @click="replying=!replying">
+              <v-btn icon v-bind="attrs" v-on="on" class="pt-0 my-0" @click="replying=!replying"  :disabled="!authService.hasUser()" >
                 <v-icon>fas fa-comment</v-icon>
               </v-btn>
             </template>
@@ -108,7 +108,7 @@
       },
 
       hasChildren () {
-        if (typeof this.myComment.children == 'undefined' || this.myComment.children == null) {
+        if (this.myComment.children.length==0) {
           return false
         }
         return true
