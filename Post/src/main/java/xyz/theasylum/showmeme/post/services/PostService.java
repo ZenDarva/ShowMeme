@@ -14,8 +14,11 @@ import xyz.theasylum.showmeme.post.domain.CachedImage;
 import xyz.theasylum.showmeme.post.domain.Comment;
 import xyz.theasylum.showmeme.post.domain.Post;
 import xyz.theasylum.showmeme.post.domain.dto.CommentDTO;
+import xyz.theasylum.showmeme.post.domain.dto.CommentVoteDTO;
 import xyz.theasylum.showmeme.post.domain.dto.NewPostDTO;
+import xyz.theasylum.showmeme.post.kafka.KafkaCommentTopic;
 import xyz.theasylum.showmeme.post.kafka.KafkaPostTopic;
+import xyz.theasylum.showmeme.post.kafka.domain.KafkaCommentVote;
 import xyz.theasylum.showmeme.post.kafka.domain.KafkaNewPost;
 import xyz.theasylum.showmeme.post.kafka.domain.KafkaViewPost;
 import xyz.theasylum.showmeme.post.repositories.CommentRepository;
@@ -24,6 +27,8 @@ import xyz.theasylum.showmeme.post.repositories.PostRepository;
 import java.io.IOException;
 import java.security.Principal;
 import java.util.*;
+
+import static xyz.theasylum.showmeme.post.utility.CommentUtil.organizeComments;
 
 @RestController()
 @RequestMapping("/api/post")
@@ -42,6 +47,9 @@ public class PostService {
 
     @Autowired
     KafkaPostTopic postTopic;
+
+    @Autowired
+    KafkaCommentTopic commentTopic;
 
 
     @PostMapping(value = "/createPost", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -75,7 +83,7 @@ public class PostService {
     }
 
     @GetMapping(value="/post/{hash:.+}")
-    public ResponseEntity getPost(@PathVariable("hash") String postHash){
+    public ResponseEntity getPost(@PathVariable("hash") String postHash, Principal principal){
         Optional<Post> post = postRepository.findById(postHash);
         if (post.isEmpty()){
             return new ResponseEntity("Not Found", HttpStatus.NOT_FOUND);
@@ -85,38 +93,15 @@ public class PostService {
         postTopic.sendPostMessage(new KafkaViewPost(post.get()));
 
         List<Comment> comments = commentRepository.getAllByPostId(postHash);
+        comments.stream().filter(f->f.getVotedUp().contains(principal.getName())).forEach(f->f.setUserVote(1));
+        comments.stream().filter(f->f.getVotedDown().contains(principal.getName())).forEach(f->f.setUserVote(-1));
         post.get().setComments(organizeComments(comments));
         return new ResponseEntity(post.get(),HttpStatus.OK);
 
     }
-    private List<Comment> organizeComments(List<Comment> baseComments){
-        List<Comment> unsortedComments = new LinkedList<>();
-        List<Comment> sortedComments = new LinkedList<>();
 
-        unsortedComments.addAll(baseComments);
 
-        baseComments.stream().filter(f->f.getParentId()==null).forEach(sortedComments::add);
-        baseComments.removeAll(sortedComments);
 
-        List<Comment> toRemove = new LinkedList<>();
-        while (!baseComments.isEmpty()){
-            for (Comment baseComment : baseComments) {
-                for (Comment sortedComment : unsortedComments) {
-                    if (sortedComment.getId().equals(baseComment.getParentId())){
-                        if (sortedComment.getChildren()==null){
-                            sortedComment.setChildren(new LinkedList<>());
-                        }
-                        sortedComment.getChildren().add(baseComment);
-                        toRemove.add(baseComment);
-                    }
-                }
-            }
-            baseComments.removeAll(toRemove);
-            toRemove.clear();
-        }
-        return sortedComments;
-
-    }
 
     @PostMapping("/addComment")
     @Secured("ROLE_USER")

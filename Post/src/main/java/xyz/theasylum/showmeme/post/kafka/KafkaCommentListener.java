@@ -6,12 +6,18 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.handler.annotation.Headers;
 import org.springframework.messaging.handler.annotation.Payload;
+import xyz.theasylum.showmeme.post.domain.Comment;
 import xyz.theasylum.showmeme.post.kafka.domain.KafkaComment;
+import xyz.theasylum.showmeme.post.kafka.domain.KafkaNewComment;
+import xyz.theasylum.showmeme.post.repositories.CommentRepository;
 import xyz.theasylum.showmeme.post.repositories.PostRepository;
 
 public class KafkaCommentListener {
     @Autowired
     PostRepository postRepository;
+
+    @Autowired
+    CommentRepository commentRepository;
 
     @Value("${application.id}")
     String id;
@@ -19,6 +25,17 @@ public class KafkaCommentListener {
     @KafkaListener(topics = "comments",groupId="${application.id}")
     public void Receive(@Payload KafkaComment message,
                         @Headers MessageHeaders headers){
+
+        if (headers.get("producer").equals(id)){
+            //We produced this message, we shouldn't process it too.
+            return;
+        }
+
+        if (message instanceof KafkaNewComment){
+            Comment comment= ((KafkaNewComment) message).toComment();
+            commentRepository.save(comment);
+            return;
+        }
 
     }
 }

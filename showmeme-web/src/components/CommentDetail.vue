@@ -1,16 +1,16 @@
 <template>
   <v-card shaped :color="this.getColor()">
-    <v-card-subtitle class="pb-0 mb-0 pa-2 pl-3">{{comment.postedBy}}</v-card-subtitle>
-    <v-card-text class="pb-0 mb-0" align="right"><span v-html="comment.body"/></v-card-text>
+    <v-card-subtitle class="pb-0 mb-0 pa-2 pl-3">{{myComment.postedBy}}</v-card-subtitle>
+    <v-card-text class="pb-0 mb-0" align="right"><span v-html="myComment.body"/></v-card-text>
     <v-card-actions class="my-0 py-0" v-if="this.authService.hasUser()">
       <v-row class="pt-0 ma-0">
         <v-col cols="3" class="py-0 my-0">
-          <v-btn icon small class="py-0 my-0 px-1">
-            <v-icon small>fas fa-thumbs-up</v-icon>
+          <v-btn icon small class="py-0 my-0 px-1" @click="voteUp">
+            <v-icon small :color="upvoteColor()">fas fa-thumbs-up</v-icon>
           </v-btn>
-          <span>{{comment.votes}}</span>
-          <v-btn icon small class="py-0 my-0 px-1">
-            <v-icon small>fas fa-thumbs-down</v-icon>
+          <span>{{myComment.votes}}</span>
+          <v-btn icon small class="py-0 my-0 px-1" @click="voteDown">
+            <v-icon small :color="downvoteColor()">fas fa-thumbs-down</v-icon>
           </v-btn>
         </v-col>
         <v-col cols="1" offset="8" class="pt-0 my-0">
@@ -26,7 +26,7 @@
       </v-row>
     </v-card-actions>
 
-    <PostBox v-if="replying" v-bind:parentId="comment.id" v-bind:postId="comment.postId" v-on:commentSent="reThrow()"
+    <PostBox v-if="replying" v-bind:parentId="myComment.id" v-bind:postId="myComment.postId" v-on:commentSent="reThrow()"
              class="mb-0 pb-0"/>
 
     <v-container v-if="hasChildren()" class="mt-n5 pt-0">
@@ -39,7 +39,7 @@
     </v-container>
 
     <v-container v-if="showChildren">
-      <CommentDetail class="ma-1" v-for="item in comment.children" :key="item.id" v-bind:comment="item" v-bind:color="color-10"></CommentDetail>
+      <CommentDetail class="ma-1" v-for="item in myComment.children" :key="item.id" v-bind:comment="item" v-bind:color="color-10"></CommentDetail>
     </v-container>
 
   </v-card>
@@ -48,6 +48,8 @@
 <script>
   import auth from '../services/auth.service.js'
   import PostBox from './PostBox'
+  import commentService from "../services/comment-service"
+  import colors from 'vuetify/lib/util/colors'
 
   export default {
     name: 'CommentDetail',
@@ -56,18 +58,62 @@
         newReply: '',
         replying: false,
         authService: auth,
-        showChildren: false
+        showChildren: false,
+        myComment:this.comment
       }
     },
     methods: {
+      upvoteColor(){
+        if (this.myComment.userVote == 1){
+          return colors.green.base
+        }
+          return colors.grey.darken1
+      },
+      downvoteColor(){
+        if (this.myComment.userVote == -1){
+          return colors.red.base
+        }
+        return colors.grey.darken1
+      },
+      voteUp(){
+        commentService.VoteComment({
+          vote:1,
+          commentId:this.myComment.id
+        }).then(
+          unused=>{
+            commentService.getComment(this.myComment.id).then(
+              response=>{
+                this.myComment=response.data
+                console.log(this.myComment)
+              }
+            )
+          },
+          error=>{},
+        )
+      },
+      voteDown(){
+        commentService.VoteComment({
+          vote:-1,
+          commentId:this.myComment.id
+        }).then(
+          unused=>{
+            commentService.getComment(this.myComment.id).then(
+              response=>{
+                this.myComment=response.data
+              }
+            )
+          },
+          error=>{},
+        )
+      },
+
       hasChildren () {
-        if (typeof this.comment.children == 'undefined' || this.comment.children == null) {
+        if (typeof this.myComment.children == 'undefined' || this.myComment.children == null) {
           return false
         }
         return true
       },
       reThrow () {
-        console.log('Re-throw')
         this.$emit('commentSent')
       },
       getColor(){
