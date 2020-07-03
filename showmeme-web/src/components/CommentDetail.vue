@@ -84,7 +84,6 @@
             commentService.getComment(this.myComment.id).then(
               response=>{
                 this.myComment=response.data
-                console.log(this.myComment)
               }
             )
           },

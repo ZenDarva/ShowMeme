@@ -54,7 +54,6 @@
     },
     methods: {
       clearInput(){
-        console.log("Called")
         this.user={};
       },
       sendRegister(){

@@ -9,8 +9,6 @@ export default class User {
     }
     fromToken(token){
         var decoded = jwtDecode(token)
-        console.log(token);
-        console.log(decoded);
 
         this.username=decoded.sub;
         this.roles=decoded.roles;

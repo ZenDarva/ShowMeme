@@ -12,10 +12,10 @@ class PostService {
         })
       }
     ).then(function () {
-      console.log('Success!')
+
     })
       .catch(function () {
-        console.log('Failure!')
+
       })
   }
 
