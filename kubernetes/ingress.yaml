@@ -1,0 +1,12 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: showmeme-ingress
+spec:
+  rules:
+    - host: showmeme.local
+      http:
+        paths:
+          - backend:
+              serviceName: showmeme-web
+              servicePort: 80
