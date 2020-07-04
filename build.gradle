@@ -1,10 +1,60 @@
+import org.apache.tools.ant.taskdefs.condition.Os
+
 plugins {
     id "org.owasp.dependencycheck" version "5.3.2.1"
+
 }
 
 group 'xyz.theasylum.showmeme'
 version '0.0.1'
 
 dependencyCheck {
-    formats=["json","html"]
+    formats = ["json", "html"]
+}
+
+private static Iterable<String> osAdaptiveCommand(String... commands) {
+    def newCommands = []
+    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+        newCommands = ['cmd', '/c']
+    }
+
+    newCommands.addAll(commands)
+    return newCommands
+}
+
+allprojects.findAll { !(it.name in ["Common", "ShowMeme"]) }.each { f ->
+    configure(f) {
+        task copyOutputsForDocker(type: Copy) {
+            from project.getTasksByName("bootJar", false).outputs
+            into "build/docker"
+        }
+        tasks.copyOutputsForDocker.dependsOn(bootJar)
+
+
+        task generateDockerFile() {
+            doLast {
+                File dockerfile = new File(project.getBuildDir(), "/docker/dockerfile")
+                println(dockerfile)
+                dockerfile.createNewFile();
+                def jarTask = tasks.getByName("bootJar")
+                File jarFile = jarTask.outputs.getFiles().first();
+
+                dockerfile.write(
+                        """from k3s.master.local:5000/java
+copy ${jarFile.name} /app/
+cmd ["-jar", "/app/${jarFile.name}"]
+""")
+            }
+        }
+        tasks.generateDockerFile.dependsOn(copyOutputsForDocker)
+
+        task buildDockerImage(type: Exec) {
+            workingDir = "build/docker/"
+            commandLine = osAdaptiveCommand("docker", "build", ".", "-t", project.name.toLowerCase())
+            ext.output = {
+                return standardOutput.toString();
+            }
+        }
+        tasks.buildDockerImage.dependsOn(generateDockerFile)
+    }
 }
