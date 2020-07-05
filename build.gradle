@@ -40,6 +40,7 @@ allprojects.findAll { !(it.name in ["Common", "ShowMeme"]) }.each { f ->
 
                 dockerfile.write(
                         """from adoptopenjdk/openjdk11:jre-11.0.7_10
+ENV SPRING_PROFILES_ACTIVE=docker
 copy ${jarFile.name} /app/
 cmd ["java", "-jar", "/app/${jarFile.name}"]
 """)
