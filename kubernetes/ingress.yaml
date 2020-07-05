@@ -7,7 +7,7 @@ spec:
     - host: showmeme.local
       http:
         paths:
-          - path: /*
+          - path: /
             backend:
               serviceName: showmeme-web
               servicePort: 80
