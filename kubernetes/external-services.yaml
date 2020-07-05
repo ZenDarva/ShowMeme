@@ -14,7 +14,7 @@ metadata:
   name: kafka
 subsets:
   - addresses:
-      - ip: 192.168.1.22
+      - ip: 192.168.1.21
     ports:
       - port: 9092
 ---
@@ -34,6 +34,6 @@ metadata:
   name: zookeeper
 subsets:
   - addresses:
-      - ip: 192.168.1.22
+      - ip: 192.168.1.21
     ports:
       - port: 2181
