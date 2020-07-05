@@ -15,7 +15,7 @@ spec:
         app: storage
     spec:
       containers:
-        - name: account
+        - name: storage
           image: k3s.master.local:5000/storage
           ports:
             - containerPort: 8080

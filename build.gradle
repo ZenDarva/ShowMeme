@@ -34,15 +34,14 @@ allprojects.findAll { !(it.name in ["Common", "ShowMeme"]) }.each { f ->
         task generateDockerFile() {
             doLast {
                 File dockerfile = new File(project.getBuildDir(), "/docker/dockerfile")
-                println(dockerfile)
                 dockerfile.createNewFile();
                 def jarTask = tasks.getByName("bootJar")
                 File jarFile = jarTask.outputs.getFiles().first();
 
                 dockerfile.write(
-                        """from k3s.master.local:5000/java
+                        """from adoptopenjdk/openjdk11:jre-11.0.7_10
 copy ${jarFile.name} /app/
-cmd ["-jar", "/app/${jarFile.name}"]
+cmd ["java", "-jar", "/app/${jarFile.name}"]
 """)
             }
         }

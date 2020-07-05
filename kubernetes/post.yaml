@@ -15,7 +15,7 @@ spec:
         app: post
     spec:
       containers:
-        - name: account
+        - name: post
           image: k3s.master.local:5000/post
           ports:
             - containerPort: 8080
