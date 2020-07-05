@@ -1,3 +1,3 @@
-from k3s.master.local:5000/apache
-copy dist/ /app/apache/htdocs/showmeme
-copy conf/ /app/apache/conf.d
+from k3s.master.local:5000/apache-alpine
+copy dist/ /app/html
+copy conf/ /app/conf
