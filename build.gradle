@@ -50,11 +50,20 @@ cmd ["-jar", "/app/${jarFile.name}"]
 
         task buildDockerImage(type: Exec) {
             workingDir = "build/docker/"
-            commandLine = osAdaptiveCommand("docker", "build", ".", "-t", project.name.toLowerCase())
+            commandLine = osAdaptiveCommand("docker", "build", ".", "-t", "k3s.master.local:5000/"+project.name.toLowerCase())
             ext.output = {
                 return standardOutput.toString();
             }
         }
         tasks.buildDockerImage.dependsOn(generateDockerFile)
+
+        task pushDockerImage(type: Exec)  {
+            workingDir = "build/docker/"
+            commandLine = osAdaptiveCommand("docker", "push", "k3s.master.local:5000/"+project.name.toLowerCase())
+            ext.output = {
+                return standardOutput.toString();
+            }
+        }
+        tasks.pushDockerImage.dependsOn(buildDockerImage)
     }
 }

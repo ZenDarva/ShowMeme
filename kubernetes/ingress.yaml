@@ -9,5 +9,5 @@ spec:
         paths:
           - path: /
             backend:
-              serviceName: showmeme-web
+              serviceName: web-content
               servicePort: 80
