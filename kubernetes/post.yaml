@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: post
+  labels:
+    app: post
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: post
+  template:
+    metadata:
+      labels:
+        app: post
+    spec:
+      containers:
+        - name: account
+          image: k3s.master.local:5000/post
+          ports:
+            - containerPort: 8080
+        - name: mongo
+          image: k3s.master.local:5000/post
