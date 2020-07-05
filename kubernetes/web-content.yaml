@@ -18,4 +18,4 @@ spec:
         - name: showmeme-web
           image: k3s.master.local:5000/showmeme-web
           ports:
-            - containerPort: 8080
+            - containerPort: 80
