@@ -21,10 +21,11 @@
       </v-row>
       <v-row>
         <v-col cols="8" offset="1">
-          <PostBox v-if="this.loggedIn" v-bind:postId="this.$route.params.id" v-on:commentSent="updateContent"></PostBox>
+          <PostBox v-if="this.loggedIn" v-bind:postId="this.$route.params.id"
+                   v-on:commentSent="updateContent"></PostBox>
         </v-col>
       </v-row>
-      <CommentSection v-if="this.hasComment" v-bind:comments="this.content.comments" v-on:commentSent="updateContent"/>
+      <CommentSection v-if="this.hasComment" v-bind:comments="this.comments" v-on:commentSent="updateContent"/>
     </v-container>
   </div>
 </template>
@@ -35,6 +36,7 @@
   import auth from '../services/auth.service.js'
   import Comment from '../models/comment'
   import PostBox from '../components/PostBox'
+  import commentService from '../services/comment-service'
 
   export default {
     name: 'Home',
@@ -47,10 +49,9 @@
         var full = location.protocol + '//' + location.hostname + (location.port ? ':' + location.port : '')
         return full + '/api/post/image/' + id
       },
-      updateContent() {
-        PostService.getPost(this.$route.params.id).then(response => {
-          this.content = response.data
-        })
+      updateContent () {
+        commentService.getCommentsForPost(this.$route.params.id).then(comments =>
+          this.comments = comments.data)
       }
 
     },
@@ -58,6 +59,7 @@
       return {
         content: {},
         newComment: '',
+        comments: [],
         loggedIn () {
           return auth.hasUser()
         },
@@ -75,11 +77,14 @@
         }
       }
     },
-    computed: {},
     mounted () {
       PostService.getPost(this.$route.params.id).then(response => {
         this.content = response.data
       })
-    }
+      commentService.getCommentsForPost(this.$route.params.id).then(comments =>
+        this.comments = comments.data)
+    },
+
+
   }
 </script>

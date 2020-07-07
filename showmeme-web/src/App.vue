@@ -44,6 +44,7 @@
       logout () {
         auth.logout();
         this.$forceUpdate()
+        window.location.reload()
       }
     }
 

@@ -92,10 +92,6 @@ public class PostService {
         postRepository.save(post.get());
         postTopic.sendPostMessage(new KafkaViewPost(post.get()));
 
-        List<Comment> comments = commentRepository.getAllByPostId(postHash);
-        comments.stream().filter(f->f.getVotedUp().contains(principal.getName())).forEach(f->f.setUserVote(1));
-        comments.stream().filter(f->f.getVotedDown().contains(principal.getName())).forEach(f->f.setUserVote(-1));
-        post.get().setComments(organizeComments(comments));
         return new ResponseEntity(post.get(),HttpStatus.OK);
 
     }

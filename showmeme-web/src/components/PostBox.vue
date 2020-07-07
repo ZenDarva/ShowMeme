@@ -1,7 +1,8 @@
 <template>
   <v-row dense align="center">
     <v-col cols="12">
-      <tiptap-vuetify v-model="postBody" placeholder="Add a comment" class="px-2"></tiptap-vuetify>
+      <tiptap-vuetify v-model="postBody" placeholder="Add a comment" class="px-2" ref="textBoxRef"
+                      :native-extensions="nativeExtensions" @init="onInit"/>
     </v-col>
     <v-col cols="1"></v-col>
     <v-col cols="1" offset="9">
@@ -14,6 +15,7 @@
 <script>
 
   import { TiptapVuetify } from 'tiptap-vuetify'
+  import EnterExtension from '../tiptapFix/EnterExtension'
   import Comment from '../models/comment'
   import PostService from '../services/post-service'
 
@@ -28,13 +30,21 @@
     data () {
       return {
         postBody: '',
-        message: ''
+        message: '',
+        nativeExtensions: [
+          new EnterExtension( ()=>this.createComment() )
+        ],
       }
     },
-    computed: {
-
-    },
     methods: {
+      keyDown (event, view) {
+        console.log(event + 'blah')
+      },
+      onInit (editor) {
+        if (this.parentId != null) {
+          editor.editor.focus()
+        }
+      },
       typedPost () {
 
         if (this.postBody.length == 0 || this.postBody == '<p></p>') {
@@ -65,7 +75,7 @@
         PostService.createComment(cmnt).then(
           response => {
             this.postBody = ''
-            this.$emit("commentSent")
+            this.$emit('commentSent')
           },
           error => {
             this.message =

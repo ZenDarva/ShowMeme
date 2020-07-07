@@ -1,0 +1,17 @@
+import { Extension } from 'tiptap'
+
+export default class EnterExtension extends Extension {
+  constructor (props) {
+    super(props)
+    this.funcToCall=props
+  }
+
+  keys() {
+    return {
+      Enter: (state, dispatch, view) => {
+        this.funcToCall()
+        return true;
+      }
+    }
+  }
+}

@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import xyz.theasylum.showmeme.post.domain.Comment;
+import xyz.theasylum.showmeme.post.domain.Post;
 import xyz.theasylum.showmeme.post.domain.dto.CommentVoteDTO;
 import xyz.theasylum.showmeme.post.kafka.domain.KafkaCommentVote;
 import xyz.theasylum.showmeme.post.repositories.CommentRepository;
@@ -87,13 +88,14 @@ public class CommentService {
         return new ResponseEntity(null,HttpStatus.OK);
     };
 
-    @GetMapping(value="/{hash:.+}")
-    public ResponseEntity getComment(@PathVariable("hash") String commentId, Principal principal){
+    @GetMapping(value="/{postHash:.+}/{commentHash:.+")
+    public ResponseEntity getComment(@PathVariable("commentHash") String commentId, @PathVariable("postHash") String postId, Principal principal){
         Optional<Comment> oComment = commentRepository.findById(commentId);
         if (oComment.isEmpty()){
             return new ResponseEntity("No such comment",HttpStatus.BAD_REQUEST);
         }
         Comment comment = oComment.get();
+        //TODO: Refactor to use postId
         List<Comment> comments = commentRepository.getAllByPostId(comment.getPostId());
         comments.stream().filter(f->f.getVotedUp().contains(principal.getName())).forEach(f->f.setUserVote(1));
         comments.stream().filter(f->f.getVotedDown().contains(principal.getName())).forEach(f->f.setUserVote(-1));
@@ -108,6 +110,16 @@ public class CommentService {
         comment = getCommentsChildren(comments,comment);
 
         return new ResponseEntity(comment,HttpStatus.OK);
+    }
 
+    @GetMapping(value="/{postHash:.+}")
+    public ResponseEntity getComments(@PathVariable("postHash") String postHash, Principal principal){
+        List<Comment> comments = commentRepository.getAllByPostId(postHash);
+        comments.stream().filter(f->f.getVotedUp().contains(principal.getName())).forEach(f->f.setUserVote(1));
+        comments.stream().filter(f->f.getVotedDown().contains(principal.getName())).forEach(f->f.setUserVote(-1));
+
+
+
+        return new ResponseEntity(organizeComments(comments),HttpStatus.OK);
     }
 }

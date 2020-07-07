@@ -14,10 +14,15 @@ class PostService {
     )
   }
 
-  getComment(commentId) {
-    return axios.get(API_URL+"/"+commentId,{
+  getComment(postId, commentId) {
+    return axios.get(API_URL+"/"+postId+"/"+commentId,{
       headers: authHeader({})
     });
+  }
+  getCommentsForPost(postId) {
+    return axios.get(API_URL + "/" + postId,{
+      headers: authHeader({})
+    })
   }
 }
 

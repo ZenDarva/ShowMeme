@@ -3,7 +3,7 @@
   <v-container  >
     <v-row >
       <v-col v-for="item in comments" :key="item.id" cols="8" offset="1" class="pb-1 pa-1">
-        <CommentDetail v-bind:comment="item" v-bind:color="245" v-on:commentSent="rethrow()"/>
+        <CommentDetail v-bind:comment="item" :color=245 v-on:commentSent="rethrow()"/>
       </v-col>
     </v-row>
   </v-container>
