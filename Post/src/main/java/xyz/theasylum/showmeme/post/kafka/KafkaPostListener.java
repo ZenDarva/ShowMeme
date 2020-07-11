@@ -16,7 +16,7 @@ import xyz.theasylum.showmeme.post.repositories.PostRepository;
 
 import java.util.Optional;
 
-//@Service
+@Service
 public class KafkaPostListener {
     @Autowired
     PostRepository postRepository;
@@ -56,6 +56,7 @@ public class KafkaPostListener {
     }
 
     private void addPost(KafkaNewPost message) {
+        System.out.println(message.toPost().getTitle());
         Optional<Post> localPost = postRepository.findById(message.getId());
         if (localPost.isEmpty()){
             //We don't have this one.  We need to add it.

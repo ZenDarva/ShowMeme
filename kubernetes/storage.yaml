@@ -16,6 +16,7 @@ spec:
     spec:
       containers:
         - name: storage
+          imagePullPolicy: Always
           image: k3s.master.local:5000/storage
           ports:
             - containerPort: 8080

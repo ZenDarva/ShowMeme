@@ -17,5 +17,6 @@ spec:
       containers:
         - name: showmeme-web
           image: k3s.master.local:5000/showmeme-web
+          imagePullPolicy: Always
           ports:
             - containerPort: 80

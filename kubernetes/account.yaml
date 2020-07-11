@@ -17,6 +17,7 @@ spec:
       containers:
         - name: account
           image: k3s.master.local:5000/account
+          imagePullPolicy: Always
           ports:
             - containerPort: 8080
         - name: mongo

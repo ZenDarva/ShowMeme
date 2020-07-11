@@ -67,7 +67,7 @@ public class PostService {
         post.setPosterUsername(principal.getName());
         postRepository.save(post);
         postTopic.sendPostMessage(new KafkaNewPost(post));
-        return new ResponseEntity(post.getImageHashes().get(0), HttpStatus.OK);
+        return new ResponseEntity(post.getId(), HttpStatus.OK);
     }
 
     @GetMapping(value="/image/{hash:.+}")
